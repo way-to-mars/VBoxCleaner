@@ -1,6 +1,4 @@
-﻿using System.Management;
-using System;
-using System.ServiceProcess;
+﻿using System.ServiceProcess;
 using System.Threading;
 using System.Threading.Tasks;
 using VBoxCleaner.Cleaners;
@@ -22,8 +20,6 @@ namespace VBoxCleaner
             Logger.WriteLine("OnStart");
             Thread.CurrentThread.Name = "VBoxCleanerMainThread";
 
-            Start();
-
             VMsCleaner.Subscribe();
             RootCleaner.Subscribe();
 
@@ -31,7 +27,6 @@ namespace VBoxCleaner
             _ = ProcessesScaner.StartAsync(tick: 500, finalTick: 10);
 
             await Task.Delay(1);
-
             Logger.WriteLine($"OnStart finishes here");
         }
 
@@ -58,15 +53,6 @@ namespace VBoxCleaner
             Logger.Dispose();
 
             base.OnShutdown();
-        }
-
-        private void Start() {
-            SelectQuery query = new SelectQuery("Win32_UserAccount");
-            ManagementObjectSearcher searcher = new ManagementObjectSearcher(query);
-            foreach (ManagementObject envVar in searcher.Get())
-            {
-                Logger.WriteLine($"Username : {envVar["Name"]}");
-            }
         }
 
     }

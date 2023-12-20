@@ -12,8 +12,6 @@ namespace VBoxCleaner.Cleaners
 {
     public static class RootCleaner
     {
-        private static List<string>? _RootPaths = null;
-        private static List<string> RootPaths { get => _RootPaths ??= InitRootPaths(); }
         private static readonly CancellationTokenSource _cts = new();
         private static bool hasLogs = false;
         private const int tick = 200;
@@ -41,26 +39,29 @@ namespace VBoxCleaner.Cleaners
             Logger.WriteLine("RootCleaner.WaitTermination has finished");
         }
 
-        private static List<string> InitRootPaths()
+        private static List<string> GetRootPaths()
         {
             List<string> result = [];
-            string? userProfile = Environment.GetEnvironmentVariable("USERPROFILE");
-            string? programData = Environment.GetEnvironmentVariable("PROGRAMDATA");
+            string userProfile = Environment.GetEnvironmentVariable("USERPROFILE");
+            string programData = Environment.GetEnvironmentVariable("PROGRAMDATA");
 
             if (userProfile.IsNotEmpty())
-            {
-                result.Add(Path.Combine(userProfile!, ".VirtualBox"));    // "%USERPROFILE%/.VirtualBox"
-                                                                          //    result.Add(Path.Combine(userProfile!, "VirtualBox VMs"));  // "%USERPROFILE%/VirtualBox VMs"
-            }
+                result.Add(Path.Combine(userProfile!, ".VirtualBox"));    // "%USERPROFILE%\.VirtualBox"                                                                     
             else
-                Logger.WriteLine("InitRootPaths: %USERPROFILE% is empty");
+                Logger.WriteLine("GetRootPaths: %USERPROFILE% is empty");
 
             if (programData.IsNotEmpty())
-                result.Add(Path.Combine(programData!, "VirtualBox"));    // "%PROGRAMDATA%/VirtualBox"
+                result.Add(Path.Combine(programData!, "VirtualBox"));    // "%PROGRAMDATA%\VirtualBox"
             else
-                Logger.WriteLine("InitRootPaths: %PROGRAMDATA% is empty");
+                Logger.WriteLine("GetRootPaths: %PROGRAMDATA% is empty");
 
-            return result;
+            string windrive = Path.GetPathRoot(Environment.SystemDirectory);
+            return Directory
+                .GetDirectories(Path.Combine(windrive, "users"))
+                .Select(path => Path.Combine(path, ".VirtualBox"))
+                .Concat(result)
+                .Where(Directory.Exists)
+                .ToList();  // C:\Users\<EveryUser>\.VirtualBox
         }
 
         private static async Task DeleteLogsAsync()
@@ -99,6 +100,7 @@ namespace VBoxCleaner.Cleaners
         private static bool DeleteRootLogs()
         {
             bool totalResult = true;
+            var RootPaths = GetRootPaths();
 
             foreach (string path in RootPaths)
             {
