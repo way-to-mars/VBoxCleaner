@@ -15,10 +15,14 @@ namespace VBoxCleaner
             InitializeComponent();
         }
 
-        protected override async void OnStart(string[] args)
+        protected override void OnStart(string[] args)
         {
             Logger.WriteLine("OnStart");
             Thread.CurrentThread.Name = "VBoxCleanerMainThread";
+
+            string MyUser = System.Environment.UserName;
+            string dropPath = $@"C: \Users\{MyUser}\AppData\Local\Temp\\VirtualBox Dropped Files";
+            Logger.WriteLine($"Current User's dropPath: {dropPath}");
 
             VMsCleaner.Subscribe();
             RootCleaner.Subscribe();
@@ -26,7 +30,6 @@ namespace VBoxCleaner
             _ = DrivesScanner.RoutineAsync(startDelay: 10.Seconds(), scanDelay: 3.Minutes());
             _ = ProcessesScaner.StartAsync(tick: 500, finalTick: 10);
 
-            await Task.Delay(1);
             Logger.WriteLine($"OnStart finishes here");
         }
 

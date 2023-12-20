@@ -88,7 +88,7 @@ namespace VBoxCleaner.IO
 
         internal class FileHolder : IDisposable
         {
-            private FileStream? _stream = null;
+            private FileStream _stream = null;
 
             /// <summary>Returns the existing FileStream or creates a new one</summary>
             /// <exception cref="IOException">

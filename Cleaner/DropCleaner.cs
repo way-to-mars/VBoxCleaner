@@ -30,6 +30,7 @@ namespace VBoxCleaner.Cleaners
                 string dropPath = Path.Combine(
                     Environment.GetEnvironmentVariable("USERPROFILE")!,
                     @"AppData\Local\Temp\VirtualBox Dropped Files");
+                Logger.WriteLine($"dropPath: {dropPath}");
                 if (Directory.Exists(dropPath))
                 {
                     IEnumerable<string> subs = Directory
@@ -119,6 +120,7 @@ namespace VBoxCleaner.Cleaners
         public static async Task DisposeAsync()
         {
             Logger.WriteLine("DropCleaning started disposing");
+            Clean();
             _cts.Cancel();
             while (pathPool.Count > 0) await Task.Delay(InnerDelay);
             Logger.WriteLine("DropCleaning is disposed");

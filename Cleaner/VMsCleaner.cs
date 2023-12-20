@@ -52,7 +52,7 @@ namespace VBoxCleaner.Cleaners
                 try
                 {
                     int pid = process.Id;
-                    string? path = process.GetCommandLine().LogPath();
+                    string path = process.GetCommandLine().LogPath();
                     if (path is not null)
                     {
                         if (logDict.TryAdd(path, pid))

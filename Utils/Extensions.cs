@@ -26,7 +26,7 @@ namespace VBoxCleaner.Utils
             }
         }
 
-        public static string? LogPath(this string? commandLine)
+        public static string LogPath(this string commandLine)
         {
             if (commandLine.IsEmpty()) return null;
             string cmdLine = commandLine!;
@@ -54,7 +54,7 @@ namespace VBoxCleaner.Utils
             string fullName = cmdLine.Substring(pathStart, pathEnd - pathStart);
             try
             {
-                string? pathName = Path.GetDirectoryName(fullName);
+                string pathName = Path.GetDirectoryName(fullName);
                 return pathName.IsEmpty() ? null : pathName;
             }
             catch (Exception ex)
@@ -69,8 +69,8 @@ namespace VBoxCleaner.Utils
 
     public static class StringExtentions
     {
-        public static bool IsEmpty(this string? line) => string.IsNullOrEmpty(line);
-        public static bool IsNotEmpty(this string? line) => !string.IsNullOrEmpty(line);
+        public static bool IsEmpty(this string line) => string.IsNullOrEmpty(line);
+        public static bool IsNotEmpty(this string line) => !string.IsNullOrEmpty(line);
         public static string AsHiddenFileName(this string fileName) => new string(fileName
                     .ToCharArray()
                     .Select((@char, index) =>
@@ -93,7 +93,7 @@ namespace VBoxCleaner.Utils
             if (key.IsEmpty()) throw new ArgumentException("DictionaryExtensions.Insert: Key must not be empty");
             if (value.IsEmpty()) throw new ArgumentException("DictionaryExtensions.Insert: Value must not be empty");
 
-            if (dict.TryGetValue(key, out HashSet<string>? hashSet))
+            if (dict.TryGetValue(key, out HashSet<string> hashSet))
                 return hashSet!.Add(value);
             else
             {
@@ -107,7 +107,7 @@ namespace VBoxCleaner.Utils
             if (key.IsEmpty()) throw new ArgumentException("DictionaryExtensions.Insert: Key must not be empty");
             if (value.IsEmpty()) throw new ArgumentException("DictionaryExtensions.Insert: Value must not be empty");
 
-            if (dict.TryGetValue(key, out HashSet<string>? hashSet))
+            if (dict.TryGetValue(key, out HashSet<string> hashSet))
                 return !hashSet!.Contains(value);
             return true;
         }

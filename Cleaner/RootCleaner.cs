@@ -106,6 +106,7 @@ namespace VBoxCleaner.Cleaners
             {
                 if (Directory.Exists(path))
                 {
+                    Logger.WriteLine($"DeleteRootLogs.GetRootPaths: {path}");
                     var files = Directory.GetFiles(path).Where(fullname => Path.GetFileName(fullname).Contains(".log"));
                     foreach (var file in files)
                         if (file != null)
