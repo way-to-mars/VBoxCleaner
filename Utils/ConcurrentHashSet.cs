@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System;
 using System.Linq;
+using System.Collections;
 
 namespace VBoxCleaner.Utils
 {
@@ -107,6 +108,18 @@ namespace VBoxCleaner.Utils
         }
         #endregion
 
+        public HashSet<T> ToHashSet() {
+            _lock.EnterWriteLock();
+            try
+            {
+                return new HashSet<T>(_hashSet);
+            }
+            finally
+            {
+                if (_lock.IsWriteLockHeld) _lock.ExitWriteLock();
+            }
+        }
+
         #region Dispose
         public void Dispose()
         {
@@ -119,6 +132,7 @@ namespace VBoxCleaner.Utils
                 if (_lock != null)
                     _lock.Dispose();
         }
+
         ~ConcurrentHashSet()
         {
             Dispose(false);

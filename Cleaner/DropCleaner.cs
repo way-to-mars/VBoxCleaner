@@ -24,26 +24,34 @@ namespace VBoxCleaner.Cleaners
         public static void Clean()
         {
             // if (Disposed) return;
+            Logger.WriteLine("DropCleaning.Clean is invoked");
+            IEnumerable<string> drops;
             try
             {
-                Logger.WriteLine("DropCleaning.Clean is invoked");
-                string dropPath = Path.Combine(
-                    Environment.GetEnvironmentVariable("USERPROFILE")!,
-                    @"AppData\Local\Temp\VirtualBox Dropped Files");
-                Logger.WriteLine($"dropPath: {dropPath}");
-                if (Directory.Exists(dropPath))
-                {
-                    IEnumerable<string> subs = Directory
-                                    .GetFileSystemEntries(dropPath)
-                                    .Where(sub => File.GetAttributes(sub).HasFlag(FileAttributes.Directory));
-                    // start a bunch of tasks and let them run independently
-                    foreach (string path in subs) _ = AddTask(path);
-                }
+                string windrive = Path.GetPathRoot(Environment.SystemDirectory);
+                // <windrive>:\Users\<EveryUser>\AppData\Local\Temp\VirtualBox Dropped Files
+                drops = Directory
+                    .GetDirectories(Path.Combine(windrive, "users"))
+                    .Select(path => Path.Combine(path, @"AppData\Local\Temp\VirtualBox Dropped Files"))
+                    .Where(Directory.Exists);
             }
             catch (Exception ex)
             {
                 Logger.WriteLine($"DropCleaning.Clean() exception:\n{ex}");
+                return;
             }
+
+            foreach (string drop in drops)
+                try
+                {
+                    Logger.WriteLine($"dropPath: {drop}");
+                    IEnumerable<string> subs = Directory.GetDirectories(drop);
+                    foreach (string path in subs) _ = AddTask(path);  // start a bunch of tasks and let them run independently
+                }
+                catch (Exception ex)
+                {
+                    Logger.WriteLine($"DropCleaning.Clean() dropPath={drop} exception:\n{ex}");
+                }
             // exit while tasks still run
         }
 

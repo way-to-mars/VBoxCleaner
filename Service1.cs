@@ -21,7 +21,7 @@ namespace VBoxCleaner
             Thread.CurrentThread.Name = "VBoxCleanerMainThread";
 
             string MyUser = System.Environment.UserName;
-            string dropPath = $@"C: \Users\{MyUser}\AppData\Local\Temp\\VirtualBox Dropped Files";
+            string dropPath = $@"C:\Users\{MyUser}\AppData\Local\Temp\VirtualBox Dropped Files";
             Logger.WriteLine($"Current User's dropPath: {dropPath}");
 
             VMsCleaner.Subscribe();

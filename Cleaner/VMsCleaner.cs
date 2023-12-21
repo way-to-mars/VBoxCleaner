@@ -21,8 +21,8 @@ namespace VBoxCleaner.Cleaners
         private static int deletingCounter = 0;
 
         //       public static Action OnTerminated = delegate { };
-        public static Action OnVMAppeared = delegate { };
-        public static Action OnAllVMsGone = delegate { };
+       // public static Action OnVMAppeared = delegate { };
+        // public static Action OnAllVMsGone = delegate { };
 
         public static void Subscribe()
         {
@@ -46,18 +46,17 @@ namespace VBoxCleaner.Cleaners
         }
         private static void PutProcesses(List<Process> processes)
         {
-            bool emptyBefore = logDict.IsEmpty;
             foreach (var process in processes)
             {
                 try
                 {
                     int pid = process.Id;
-                    string path = process.GetCommandLine().LogPath();
-                    if (path is not null)
+                    string logPath = process.GetCommandLine().LogPath();
+                    if (logPath is not null)
                     {
-                        if (logDict.TryAdd(path, pid))
+                        if (logDict.TryAdd(logPath, pid))
                         {
-                            Debug.WriteLine($"Created new pair '{path}' to {pid}");
+                            Debug.WriteLine($"Created new pair '{logPath}' to {pid}");
                             Debug.WriteLine(string.Join(Environment.NewLine, logDict));
                         }
                     }
@@ -67,10 +66,7 @@ namespace VBoxCleaner.Cleaners
                     Logger.WriteLine($"VMsCleaning.PutProcesses exception:\n{ex}");
                 }
             }
-            if (!logDict.IsEmpty && emptyBefore)
-            {
-                OnVMAppeared.Invoke();
-            }
+
         }
         private static void PutPath(string path)
         {
@@ -84,13 +80,12 @@ namespace VBoxCleaner.Cleaners
         }
         private static void Remove(List<Process> processes)
         {
-            DropCleaner.Clean();
             foreach (var process in processes)
             {
                 string path = logDict.FindFirstKeyByValue(process.Id, "");
                 if (path.IsNotEmpty())
                 {
-                    logDict.TryRemove(path, out _);  // Remove path from logDict no matter if logs are deleted or not
+                    logDict.TryRemove(path, out _);  // Remove logPath from logDict no matter if logs are deleted or not
                     Interlocked.Increment(ref deletingCounter);
                     _ = DeleteLogsAsync(path);  // Invoke deleting and don't mind when it finishes
                 }
@@ -100,7 +95,7 @@ namespace VBoxCleaner.Cleaners
 
             if (logDict.IsEmpty)
             {
-                OnAllVMsGone.Invoke();
+                DropCleaner.Clean();
             }
         }
         private static async Task DeleteLogsAsync(string path)
@@ -143,7 +138,7 @@ namespace VBoxCleaner.Cleaners
             }
             else
             {
-                Logger.WriteLine($"path '{path}' doesn't exist");
+                Logger.WriteLine($"logPath '{path}' doesn't exist");
             }
 
             return totalResult;

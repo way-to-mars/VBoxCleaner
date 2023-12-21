@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -64,6 +65,18 @@ namespace VBoxCleaner.Utils
             }
         }
 
+        public static string TempDirectory(this Process process) {
+            Logger.WriteLine($"process - {process.ProcessName}");
+
+            StringDictionary envs = process.StartInfo.EnvironmentVariables;
+
+            foreach (string key in envs.Keys)
+            {
+                Logger.WriteLine($"  >> {key} -- {envs[key]}");
+            }
+
+            return process.StartInfo.Environment["TEMP"];
+        }
 
     }
 
